@@ -1,15 +1,25 @@
-// REGEX
-const REG = /\d+([.,]\d+)?/g;
+let observer = null;
 
-// TITLE
-document.title = document.title.replace(REG, match => toRoman(match.replace(',', '.')));
+chrome.storage.local.get(['romanToggle'], (result) => {
+    if (result.romanToggle !== 'disabled') {
+        startConversion();
+    }
+})
 
-// PAGE
-(function() {
-    const REG = /\b\d+([.,]\d+)?\b/g;
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.romanToggle) {
+        location.reload();
+    }
+})
+
+function startConversion() {
+    const REG = /\d+([.,]\d+)?/g;
     
+    document.title = document.title.replace(REG, match => toRoman(match.replace(',', '.')));
+    
+    const REG_PAGE = /\b\d+([.,]\d+)?\b/g;
     const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'CODE', 'PRE']);
-
+    
     function shouldSkip(node) {
         let parent = node.parentElement;
         while (parent) {
@@ -19,12 +29,10 @@ document.title = document.title.replace(REG, match => toRoman(match.replace(',',
         }
         return false;
     }
-
+    
     function convertNode(node) {
-        if (node.nodeType === Node.TEXT_NODE && 
-            REG.test(node.textContent) && 
-            !shouldSkip(node)) {
-            node.textContent = node.textContent.replace(REG, match => {
+        if (node.nodeType === Node.TEXT_NODE && REG_PAGE.test(node.textContent) && !shouldSkip(node)) {
+            node.textContent = node.textContent.replace(REG_PAGE, match => {
                 const num = parseFloat(match.replace(',', '.'));
                 if (num > 0 && num < 4000) {
                     return toRoman(num);
@@ -33,7 +41,7 @@ document.title = document.title.replace(REG, match => toRoman(match.replace(',',
             })
         }
     }
-
+    
     function convertAll(root) {
         const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
         let node;
@@ -41,10 +49,10 @@ document.title = document.title.replace(REG, match => toRoman(match.replace(',',
             convertNode(node);
         }
     }
-
+    
     convertAll(document.body);
-
-    const observer = new MutationObserver(mutations => {
+    
+    observer = new MutationObserver(mutations => {
         mutations.forEach(mutation => {
             mutation.addedNodes.forEach(node => {
                 if (node.nodeType === Node.ELEMENT_NODE) {
@@ -55,9 +63,9 @@ document.title = document.title.replace(REG, match => toRoman(match.replace(',',
             })
         })
     })
-
+    
     observer.observe(document.body, {
         childList: true,
         subtree: true
     })
-})()
+}

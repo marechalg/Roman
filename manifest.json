@@ -1,7 +1,7 @@
 {
     "name": "Roman",
     "description": "Simple Chrome extension to convert numbers to roman numerals",
-    "version": "0.3",
+    "version": "1.0",
     "manifest_version": 3,
     
     "action": {
@@ -19,5 +19,7 @@
         "matches": ["<all_urls>"],
         "js": ["src/toRoman.js", "src/main.js"],
         "run_at": "document_idle"
-    }]
+    }],
+
+    "permissions": ["tabs", "storage"]
 }
