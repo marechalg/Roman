@@ -1,0 +1,23 @@
+{
+    "name": "Roman",
+    "description": "Simple Chrome extension to convert numbers to roman numerals",
+    "version": "0.2",
+    "manifest_version": 3,
+    
+    "action": {
+        "default_popup": "src/popup.html",
+        "default_icon": "assets/128.png"
+    },
+    
+    "icons": {
+        "16": "assets/16.png",
+        "32": "assets/32.png",
+        "64": "assets/64.png"
+    },
+    
+    "content_scripts": [{
+        "matches": ["<all_urls>"],
+        "js": ["src/toRoman.js", "src/main.js"],
+        "run_at": "document_end"
+    }]
+}
